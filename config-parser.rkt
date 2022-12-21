@@ -9,7 +9,9 @@
 (define identifier/p (map (compose1 string->symbol list->string) (many/p (or/p letter/p digit/p))))
 
 (define whitespace/p (label/p "whitespace" (satisfy/p char-blank?)))
-(define ws/p (many/p whitespace/p))
+(define ws/p (label/p "whitespaces" (many/p whitespace/p)))
+
+(define newline/p (label/p "newlines" (many+/p (or/p (char/p #\return) (char/p #\newline)))))
 
 (define parse-header/p
   (do (char/p #\[) ws/p [header-name <- identifier/p] ws/p (char/p #\]) (pure header-name)))
@@ -24,5 +26,5 @@
       ws/p
       (pure `(,prop-name . ,prop-value))))
 
-(provide ws/p)
+(provide ws/p newline/p parse-header/p)
 
