@@ -28,7 +28,8 @@
 
 (describe "newline/p"
           (it "must read newline" (check-success newline/p "\n" '(#\newline)))
-          (it "must read read carriage return" (check-success newline/p "\r" '(#\return)))
+          (it "must read read carriage return" (check-success newline/p "\r\n" '(#\newline)))
+          (it "must not read lone carriage return" (ensure-fail newline/p "\r" '("'\n'")))
           (it "must not read tabs" (ensure-fail newline/p "\t" '("newlines")))
           (it "must not read space" (ensure-fail newline/p " " '("newlines"))))
 

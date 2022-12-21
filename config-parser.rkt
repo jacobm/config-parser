@@ -11,7 +11,7 @@
 (define whitespace/p (label/p "whitespace" (satisfy/p char-blank?)))
 (define ws/p (label/p "whitespaces" (many/p whitespace/p)))
 
-(define newline/p (label/p "newlines" (many+/p (or/p (char/p #\return) (char/p #\newline)))))
+(define newline/p (label/p "newlines" (many+/p (or/p (do (char/p #\return) (char/p #\newline)) (char/p #\newline)))))
 
 (define parse-header/p
   (do (char/p #\[) ws/p [header-name <- identifier/p] ws/p (char/p #\]) (pure header-name)))
