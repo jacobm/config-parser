@@ -6,25 +6,37 @@
          megaparsack
          megaparsack/text)
 
-(define identifier/p (map (compose1 string->symbol list->string) (many/p (or/p letter/p digit/p))))
-
 (define whitespace/p (label/p "whitespace" (satisfy/p char-blank?)))
 (define ws/p (label/p "whitespaces" (many/p whitespace/p)))
+(define newline/p
+  (label/p "newline" (or/p (do (char/p #\return) (char/p #\newline)) (char/p #\newline))))
+(define blank-or-newlines/p (label/p "blank or newlines" (many/p (or/p newline/p ws/p))))
 
-(define newline/p (label/p "newlines" (many+/p (or/p (do (char/p #\return) (char/p #\newline)) (char/p #\newline)))))
+(define identifier/p (map (compose1 string->symbol list->string) (many+/p (or/p letter/p digit/p))))
 
 (define parse-header/p
-  (do (char/p #\[) ws/p [header-name <- identifier/p] ws/p (char/p #\]) (pure header-name)))
+  (do ws/p
+      (char/p #\[)
+      ws/p
+      [header-name <- (label/p "header name" identifier/p)]
+      ws/p
+      (char/p #\])
+      ws/p
+      newline/p
+      (pure header-name)))
 
 (define parse-property/p
   (do ws/p
-      [prop-name <- identifier/p]
+      [prop-name <- (label/p "property name" identifier/p)]
       ws/p
       (char/p #\=)
       ws/p
-      [prop-value <- identifier/p]
+      [prop-value <- (label/p "property value" identifier/p)]
       ws/p
+      newline/p
       (pure `(,prop-name . ,prop-value))))
 
-(provide ws/p newline/p parse-header/p)
-
+(provide ws/p
+         newline/p
+         parse-header/p
+         parse-property/p)
