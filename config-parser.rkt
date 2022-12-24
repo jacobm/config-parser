@@ -6,11 +6,11 @@
          megaparsack
          megaparsack/text)
 
-(define whitespace/p (label/p "whitespace" (satisfy/p char-blank?)))
-(define ws/p (label/p "whitespaces" (many/p whitespace/p)))
-(define newline/p
-  (label/p "newline" (or/p (do (char/p #\return) (char/p #\newline)) (char/p #\newline))))
-(define blank-or-newlines/p (label/p "blank or newlines" (many/p (or/p newline/p ws/p))))
+(define whitespace/p (hidden/p (satisfy/p char-blank?)))
+(define ws/p (hidden/p (do (many/p whitespace/p) (pure (void)))))
+(define newline/p (hidden/p (or/p (do (char/p #\return) (char/p #\newline)) (char/p #\newline))))
+(define blank-line/p (hidden/p (do ws/p newline/p (pure (void)))))
+(define blank-lines/p (hidden/p (do (many/p (try/p blank-line/p)) (pure (void)))))
 
 (define identifier/p (map (compose1 string->symbol list->string) (many+/p (or/p letter/p digit/p))))
 
@@ -36,7 +36,16 @@
       newline/p
       (pure `(,prop-name . ,prop-value))))
 
+(define parse-configuration/p
+  (do blank-lines/p
+      [header <- parse-header/p]
+      (many/p (try/p blank-line/p))
+      [properties <- (many/p (do blank-lines/p parse-property/p))]
+      (pure `(,header . ,properties))))
+
 (provide ws/p
          newline/p
+         blank-lines/p
          parse-header/p
-         parse-property/p)
+         parse-property/p
+         parse-configuration/p)
