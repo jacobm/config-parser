@@ -8,8 +8,7 @@
 
 (struct section (name properties) #:transparent)
 
-(define whitespace/p (hidden/p (satisfy/p char-blank?)))
-(define ws/p (hidden/p (do (many/p whitespace/p) (pure (void)))))
+(define ws/p (hidden/p (do (many/p (satisfy/p char-blank?)) (pure (void)))))
 (define newline/p (hidden/p (or/p (do (char/p #\return) (char/p #\newline)) (char/p #\newline))))
 (define blank-line/p (hidden/p (do ws/p newline/p (pure (void)))))
 (define blank-lines/p (hidden/p (do (many/p (try/p blank-line/p)) (pure (void)))))
