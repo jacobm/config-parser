@@ -61,8 +61,8 @@
 (define (check input expected)
   (check-success parse-configuration/p input expected))
 
-(describe
- "parse-configuration/p"
- (it "must read a section"
-     (check " \n [fisk]\nname=value\n  dingo = hest\n" '(fisk (name . value) (dingo . hest))))
- (it "must read a empty section" (check " \n [fisk]\n" '(fisk))))
+(describe "parse-configuration/p"
+          (it "must read a section"
+              (check " \n [fisk]\nname=value\n  dingo = hest\n"
+                     (section 'fisk (list '(name . value) '(dingo . hest)))))
+          (it "must read a empty section" (check " \n [fisk]\n" (section 'fisk '()))))

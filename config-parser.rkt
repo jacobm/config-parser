@@ -6,6 +6,8 @@
          megaparsack
          megaparsack/text)
 
+(struct section (name properties) #:transparent)
+
 (define whitespace/p (hidden/p (satisfy/p char-blank?)))
 (define ws/p (hidden/p (do (many/p whitespace/p) (pure (void)))))
 (define newline/p (hidden/p (or/p (do (char/p #\return) (char/p #\newline)) (char/p #\newline))))
@@ -36,14 +38,16 @@
       newline/p
       (pure `(,prop-name . ,prop-value))))
 
+
 (define parse-configuration/p
   (do blank-lines/p
       [header <- parse-header/p]
       (many/p (try/p blank-line/p))
       [properties <- (many/p (do blank-lines/p parse-property/p))]
-      (pure `(,header . ,properties))))
+      (pure (section header properties))))
 
-(provide ws/p
+(provide section
+         ws/p
          newline/p
          blank-lines/p
          parse-header/p
