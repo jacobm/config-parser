@@ -28,6 +28,6 @@ produces
 (success 
    (list 
      (section 'section '((fisk . hest) (fisk2 . hest2) (fisk3 . hest3))) 
-	 (section 'section2 '((dingo . bingo))) 
-	 (section 'sectionAtTheEnd '())))
+     (section 'section2 '((dingo . bingo))) 
+     (section 'sectionAtTheEnd '())))
 ```
