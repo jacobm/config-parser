@@ -41,28 +41,43 @@
 
 (describe
  "parse-header/p"
- (it "must read a header" (check-success parse-header/p "[dingo]\n" 'dingo))
- (it "must read a header allowing for spaces"
-     (check-success parse-header/p "  [ \tdingo\t\t]  \n" 'dingo))
+ (it "must read a header" (check-success parse-header/p "[dingo]" 'dingo))
+ (it "must read a header allowing for spaces" (check-success parse-header/p "[ \tdingo\t\t]" 'dingo))
  (it "must fail on missing header name" (ensure-fail parse-header/p "[]" '("header name")))
  (it "must fail on missing [" (ensure-fail parse-header/p "dingo]" '("'['")))
  (it "must fail on missing ]" (ensure-fail parse-header/p "[dingo" '("letter" "number" "']'"))))
 
-(describe "parse-property/p"
-          (it "must read a property" (check-success parse-property/p "dingo=hest\n" '(dingo . hest)))
-          (it "must read a property"
-              (check-success parse-property/p " \t dingo \t\t =   \t hest\t  \n" '(dingo . hest)))
-          (it "must fail on missing property name"
-              (ensure-fail parse-property/p " = hest\n" '("property name")))
-          (it "must fail on missing property value"
-              (ensure-fail parse-property/p " dingo = \t \n" '("property value")))
-          (it "must fail on missing =" (ensure-fail parse-property/p "dingo hest" '("'='"))))
+(describe
+ "parse-property/p"
+ (it "must read a property" (check-success parse-property/p "dingo=hest" '(dingo . hest)))
+ (it "must read a property" (check-success parse-property/p "dingo \t\t =   \t hest" '(dingo . hest)))
+ (it "must fail on missing property name" (ensure-fail parse-property/p "= hest" '("property name")))
+ (it "must fail on missing property value"
+     (ensure-fail parse-property/p "dingo = \t" '("property value")))
+ (it "must fail on missing =" (ensure-fail parse-property/p "dingo hest" '("'='"))))
 
 (define (check input expected)
-  (check-success parse-configuration/p input expected))
+  (check-success parse-section/p input expected))
 
-(describe "parse-configuration/p"
+(describe "parse-section/p"
           (it "must read a section"
               (check " \n [fisk]\nname=value\n  dingo = hest\n"
                      (section 'fisk (list '(name . value) '(dingo . hest)))))
           (it "must read a empty section" (check " \n [fisk]\n" (section 'fisk '()))))
+
+(describe
+ "parse-ini/p"
+ (it "must read a ini file"
+     (check-success
+      parse-ini/p
+      " \n [fisk]\nname=value\n \n  dingo = hest\n \n [section2]\nprop1=value\n prop2 = hest\n"
+      (list (section 'fisk '((name . value) (dingo . hest)))
+            (section 'section2 '((prop1 . value) (prop2 . hest))))))
+ (it
+  "must read a ini file that ends with empty section"
+  (check-success
+   parse-ini/p
+   " \n [fisk]\nname=value\n \n  dingo = hest\n \n [section2]\nprop1=value\n prop2 = hest\n[endsection]"
+   (list (section 'fisk '((name . value) (dingo . hest)))
+         (section 'section2 '((prop1 . value) (prop2 . hest)))
+         (section 'endsection '())))))
