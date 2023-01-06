@@ -6,19 +6,15 @@ A parser for INI files in Racket
 ```
 (parse-string parse-ini/p "
 
-
 [section]
 fisk = hest
-   fisk2=   hest2
-
-
-  fisk3  =hest3
+fisk2 = hest2
+fisk3 = hest3
 
 [section2]
 dingo = bingo
 
-
-   [sectionAtTheEnd]
+[sectionAtTheEnd]
 ")
 ``` 
 
